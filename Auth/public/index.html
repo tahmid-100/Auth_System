@@ -451,6 +451,8 @@
             profile: document.getElementById('profile-link'),
             logout: document.getElementById('logout-link')
         };
+
+        
         
         // Navigation Functions
         function showSection(section) {
@@ -758,18 +760,55 @@
         });
         
         // Initialize the application
-        function initApp() {
-            // Check if user is logged in
-            const token = localStorage.getItem('authToken');
-            if (token) {
-                updateNavigation(true);
-                showProfile();
-                showSection('profile');
-            } else {
-                updateNavigation(false);
-                showSection('login');
-            }
+     // Check for email verification token on page load
+function checkEmailVerificationToken() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const isVerification = window.location.pathname === '/verify-email' || token;
+  
+  if (token && isVerification) {
+    // Remove the token from URL without reloading
+    window.history.replaceState({}, document.title, window.location.pathname);
+    
+    // Show verification in progress message
+    showAlert(alerts.login, 'Verifying your email address...', 'success');
+    
+    // Make API call to verify email
+    makeApiRequest(`/auth/verify-email?token=${token}`, 'GET')
+      .then(response => {
+        showAlert(alerts.login, response.message, 'success');
+        
+        // Update user data if logged in
+        const userData = localStorage.getItem('user');
+        if (userData) {
+          const user = JSON.parse(userData);
+          user.emailVerified = true;
+          localStorage.setItem('user', JSON.stringify(user));
+          showProfile();
         }
+      })
+      .catch(error => {
+        showAlert(alerts.login, error.message, 'error');
+      });
+  }
+}
+
+// Call this function in your initApp function
+function initApp() {
+  // Check if user is logged in
+  const token = localStorage.getItem('authToken');
+  if (token) {
+    updateNavigation(true);
+    showProfile();
+    showSection('profile');
+  } else {
+    updateNavigation(false);
+    showSection('login');
+  }
+  
+  // Check for email verification token
+  checkEmailVerificationToken();
+}
         
         // Start the application
         initApp();
