@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication System</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #4cc9f0;
+            --error-color: #f72585;
+            --background-color: #f8f9fa;
+            --text-color: #212529;
+            --light-gray: #e9ecef;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        .auth-container {
+            max-width: 500px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .form-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .form-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        
+        .alert {
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .alert-success {
+            background-color: rgba(76, 201, 240, 0.2);
+            color: #4cc9f0;
+            border: 1px solid #4cc9f0;
+        }
+        
+        .alert-error {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: #f72585;
+            border: 1px solid #f72585;
+        }
+        
+        .profile-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 2rem auto;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-right: 1.5rem;
+        }
+        
+        .profile-details {
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-info {
+            margin-bottom: 0.5rem;
+        }
+        
+        .verification-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+        }
+        
+        .verified {
+            background-color: rgba(76, 201, 240, 0.2);
+            color: #4cc9f0;
+        }
+        
+        .not-verified {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: #f72585;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .profile-card {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-avatar {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">AuthSystem</div>
+                <div class="nav-links">
+                    <a href="#" id="home-link">Home</a>
+                    <a href="#" id="register-link">Register</a>
+                    <a href="#" id="login-link">Login</a>
+                    <a href="#" id="profile-link" class="hidden">Profile</a>
+                    <a href="#" id="logout-link" class="hidden">Logout</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Register Form -->
+        <div id="register-section" class="auth-container">
+            <h1>Create Account</h1>
+            <div id="register-alert"></div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                    <small>Must be at least 12 characters with uppercase, lowercase, number, and symbol</small>
+                </div>
+                <button type="submit">Register</button>
+            </form>
+            <div class="form-footer">
+                Already have an account? <a href="#" id="to-login">Login</a>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login-section" class="auth-container hidden">
+            <h1>Login</h1>
+            <div id="login-alert"></div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-phone">Phone Number</label>
+                    <input type="tel" id="login-phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+            <div class="form-footer">
+                Don't have an account? <a href="#" id="to-register">Register</a> | 
+                <a href="#" id="to-forgot-password">Forgot Password?</a>
+            </div>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div id="forgot-password-section" class="auth-container hidden">
+            <h1>Reset Password</h1>
+            <div id="forgot-alert"></div>
+            <form id="forgot-password-form">
+                <div class="form-group">
+                    <label for="reset-phone">Phone Number</label>
+                    <input type="tel" id="reset-phone" name="phone" required>
+                </div>
+                <button type="submit">Send OTP</button>
+            </form>
+            <div class="form-footer">
+                Remember your password? <a href="#" id="to-login-from-forgot">Login</a>
+            </div>
+        </div>
+
+        <!-- Reset Password Form -->
+        <div id="reset-password-section" class="auth-container hidden">
+            <h1>Set New Password</h1>
+            <div id="reset-alert"></div>
+            <form id="reset-password-form">
+                <div class="form-group">
+                    <label for="reset-otp">OTP Code</label>
+                    <input type="text" id="reset-otp" name="otp" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" name="newPassword" required>
+                    <small>Must be at least 12 characters with uppercase, lowercase, number, and symbol</small>
+                </div>
+                <button type="submit">Reset Password</button>
+            </form>
+            <div class="form-footer">
+                <a href="#" id="to-login-from-reset">Back to Login</a>
+            </div>
+        </div>
+
+        <!-- Verify Phone Form -->
+        <div id="verify-phone-section" class="auth-container hidden">
+            <h1>Verify Phone Number</h1>
+            <div id="verify-phone-alert"></div>
+            <form id="verify-phone-form">
+                <div class="form-group">
+                    <label for="verify-otp">Enter OTP</label>
+                    <input type="text" id="verify-otp" name="otp" required>
+                </div>
+                <button type="submit">Verify Phone</button>
+            </form>
+            <div class="form-footer">
+                Didn't receive OTP? <a href="#" id="resend-otp">Resend OTP</a>
+            </div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile-section" class="hidden">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profile-avatar">U</div>
+                    <div class="profile-details">
+                        <h2 class="profile-name" id="profile-name">User Name</h2>
+                        <div class="profile-info">
+                            <span class="profile-email" id="profile-email">user@example.com</span>
+                        </div>
+                        <div class="profile-info">
+                            <span class="profile-phone" id="profile-phone">+1234567890</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-info">
+                    Phone Verification: 
+                    <span class="verification-status" id="phone-verified-status">Not Verified</span>
+                </div>
+                <div class="profile-info">
+                    Email Verification: 
+                    <span class="verification-status" id="email-verified-status">Not Verified</span>
+                </div>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <button id="change-password-btn">Change Password</button>
+                </div>
+            </div>
+
+            <!-- Change Password Form -->
+            <div id="change-password-section" class="auth-container hidden">
+                <h1>Change Password</h1>
+                <div id="change-password-alert"></div>
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" name="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="change-new-password">New Password</label>
+                        <input type="password" id="change-new-password" name="newPassword" required>
+                        <small>Must be at least 12 characters with uppercase, lowercase, number, and symbol</small>
+                    </div>
+                    <button type="submit">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Base URL - Update this to match your backend URL
+        const API_BASE_URL = '/api';
+        
+        // DOM Elements
+        const sections = {
+            register: document.getElementById('register-section'),
+            login: document.getElementById('login-section'),
+            forgotPassword: document.getElementById('forgot-password-section'),
+            resetPassword: document.getElementById('reset-password-section'),
+            verifyPhone: document.getElementById('verify-phone-section'),
+            profile: document.getElementById('profile-section'),
+            changePassword: document.getElementById('change-password-section')
+        };
+        
+        const forms = {
+            register: document.getElementById('register-form'),
+            login: document.getElementById('login-form'),
+            forgotPassword: document.getElementById('forgot-password-form'),
+            resetPassword: document.getElementById('reset-password-form'),
+            verifyPhone: document.getElementById('verify-phone-form'),
+            changePassword: document.getElementById('change-password-form')
+        };
+        
+        const alerts = {
+            register: document.getElementById('register-alert'),
+            login: document.getElementById('login-alert'),
+            forgot: document.getElementById('forgot-alert'),
+            reset: document.getElementById('reset-alert'),
+            verifyPhone: document.getElementById('verify-phone-alert'),
+            changePassword: document.getElementById('change-password-alert')
+        };
+        
+        const navLinks = {
+            home: document.getElementById('home-link'),
+            register: document.getElementById('register-link'),
+            login: document.getElementById('login-link'),
+            profile: document.getElementById('profile-link'),
+            logout: document.getElementById('logout-link')
+        };
+        
+        // Navigation Functions
+        function showSection(section) {
+            // Hide all sections
+            Object.values(sections).forEach(section => {
+                if (section) section.classList.add('hidden');
+            });
+            
+            // Show the requested section
+            if (sections[section]) {
+                sections[section].classList.remove('hidden');
+            }
+        }
+        
+        function updateNavigation(isLoggedIn) {
+            if (isLoggedIn) {
+                navLinks.login.classList.add('hidden');
+                navLinks.register.classList.add('hidden');
+                navLinks.profile.classList.remove('hidden');
+                navLinks.logout.classList.remove('hidden');
+            } else {
+                navLinks.login.classList.remove('hidden');
+                navLinks.register.classList.remove('hidden');
+                navLinks.profile.classList.add('hidden');
+                navLinks.logout.classList.add('hidden');
+            }
+        }
+        
+        // Alert Functions
+        function showAlert(alertElement, message, type) {
+            alertElement.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => {
+                alertElement.innerHTML = '';
+            }, 5000);
+        }
+        
+        // API Functions
+        async function makeApiRequest(url, method, body = null, auth = false) {
+            const options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            };
+            
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+            
+            if (auth) {
+                const token = localStorage.getItem('authToken');
+                if (token) {
+                    options.headers.Authorization = `Bearer ${token}`;
+                }
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}${url}`, options);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Something went wrong');
+                }
+                
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        // Form Handlers
+        forms.register.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                fullName: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const response = await makeApiRequest('/auth/register', 'POST', formData);
+                showAlert(alerts.register, 'Registration successful! Please check your phone for OTP.', 'success');
+                
+                // Store user ID for verification
+                localStorage.setItem('userId', response.userId);
+                
+                // Show phone verification section
+                showSection('verifyPhone');
+            } catch (error) {
+                showAlert(alerts.register, error.message, 'error');
+            }
+        });
+        
+        forms.login.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                phone: document.getElementById('login-phone').value,
+                password: document.getElementById('login-password').value
+            };
+            
+            try {
+                const response = await makeApiRequest('/auth/login', 'POST', formData);
+                
+                // Store token and user data
+                localStorage.setItem('authToken', response.token);
+                localStorage.setItem('user', JSON.stringify(response.user));
+                
+                showAlert(alerts.login, 'Login successful!', 'success');
+                
+                // Update navigation and show profile
+                updateNavigation(true);
+                showProfile();
+                showSection('profile');
+            } catch (error) {
+                showAlert(alerts.login, error.message, 'error');
+            }
+        });
+        
+        forms.verifyPhone.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                userId: localStorage.getItem('userId'),
+                otp: document.getElementById('verify-otp').value
+            };
+            
+            try {
+                const response = await makeApiRequest('/auth/verify-phone', 'POST', formData);
+                showAlert(alerts.verifyPhone, 'Phone verified successfully!', 'success');
+                
+                // Redirect to login after a delay
+                setTimeout(() => {
+                    showSection('login');
+                }, 2000);
+            } catch (error) {
+                showAlert(alerts.verifyPhone, error.message, 'error');
+            }
+        });
+        
+        forms.forgotPassword.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                phone: document.getElementById('reset-phone').value
+            };
+            
+            try {
+                const response = await makeApiRequest('/auth/forgot-password', 'POST', formData);
+                showAlert(alerts.forgot, 'OTP sent to your phone!', 'success');
+                
+                // Store user ID for reset password
+                localStorage.setItem('resetUserId', response.userId);
+                
+                // Show reset password section
+                showSection('resetPassword');
+            } catch (error) {
+                showAlert(alerts.forgot, error.message, 'error');
+            }
+        });
+        
+        forms.resetPassword.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                userId: localStorage.getItem('resetUserId'),
+                otp: document.getElementById('reset-otp').value,
+                newPassword: document.getElementById('new-password').value
+            };
+            
+            try {
+                const response = await makeApiRequest('/auth/reset-password', 'POST', formData);
+                showAlert(alerts.reset, 'Password reset successfully!', 'success');
+                
+                // Redirect to login after a delay
+                setTimeout(() => {
+                    showSection('login');
+                }, 2000);
+            } catch (error) {
+                showAlert(alerts.reset, error.message, 'error');
+            }
+        });
+        
+        forms.changePassword.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                currentPassword: document.getElementById('current-password').value,
+                newPassword: document.getElementById('change-new-password').value
+            };
+            
+            try {
+                const response = await makeApiRequest('/auth/change-password', 'POST', formData, true);
+                showAlert(alerts.changePassword, 'Password changed successfully!', 'success');
+                
+                // Hide change password form
+                sections.changePassword.classList.add('hidden');
+                
+                // Clear form
+                forms.changePassword.reset();
+            } catch (error) {
+                showAlert(alerts.changePassword, error.message, 'error');
+            }
+        });
+        
+        // Profile Functions
+        function showProfile() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            if (user) {
+                document.getElementById('profile-name').textContent = user.fullName || 'User Name';
+                document.getElementById('profile-email').textContent = user.email || 'user@example.com';
+                document.getElementById('profile-phone').textContent = user.phone || '+1234567890';
+                
+                // Set avatar initial
+                document.getElementById('profile-avatar').textContent = user.fullName ? user.fullName.charAt(0).toUpperCase() : 'U';
+                
+                // Update verification status
+                document.getElementById('phone-verified-status').textContent = user.phoneVerified ? 'Verified' : 'Not Verified';
+                document.getElementById('phone-verified-status').className = user.phoneVerified ? 'verification-status verified' : 'verification-status not-verified';
+                
+                document.getElementById('email-verified-status').textContent = user.emailVerified ? 'Verified' : 'Not Verified';
+                document.getElementById('email-verified-status').className = user.emailVerified ? 'verification-status verified' : 'verification-status not-verified';
+            }
+        }
+        
+        // Navigation Event Listeners
+        navLinks.home.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (localStorage.getItem('authToken')) {
+                showSection('profile');
+            } else {
+                showSection('login');
+            }
+        });
+        
+        navLinks.register.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('register');
+        });
+        
+        navLinks.login.addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('login');
+        });
+        
+        navLinks.profile.addEventListener('click', (e) => {
+            e.preventDefault();
+            showProfile();
+            showSection('profile');
+        });
+        
+        navLinks.logout.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('user');
+            updateNavigation(false);
+            showSection('login');
+        });
+        
+        document.getElementById('to-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('login');
+        });
+        
+        document.getElementById('to-register').addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('register');
+        });
+        
+        document.getElementById('to-forgot-password').addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('forgotPassword');
+        });
+        
+        document.getElementById('to-login-from-forgot').addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('login');
+        });
+        
+        document.getElementById('to-login-from-reset').addEventListener('click', (e) => {
+            e.preventDefault();
+            showSection('login');
+        });
+        
+        document.getElementById('resend-otp').addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                const response = await makeApiRequest('/auth/resend-phone-otp', 'POST', {
+                    userId: localStorage.getItem('userId')
+                });
+                
+                showAlert(alerts.verifyPhone, 'OTP resent successfully!', 'success');
+            } catch (error) {
+                showAlert(alerts.verifyPhone, error.message, 'error');
+            }
+        });
+        
+        document.getElementById('change-password-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            sections.changePassword.classList.toggle('hidden');
+        });
+        
+        // Initialize the application
+        function initApp() {
+            // Check if user is logged in
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                updateNavigation(true);
+                showProfile();
+                showSection('profile');
+            } else {
+                updateNavigation(false);
+                showSection('login');
+            }
+        }
+        
+        // Start the application
+        initApp();
+    </script>
+</body>
+</html>
