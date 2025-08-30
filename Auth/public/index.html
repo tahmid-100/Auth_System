@@ -616,27 +616,30 @@
             }
         });
         
-        forms.resetPassword.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = {
-                userId: localStorage.getItem('resetUserId'),
-                otp: document.getElementById('reset-otp').value,
-                newPassword: document.getElementById('new-password').value
-            };
-            
-            try {
-                const response = await makeApiRequest('/auth/reset-password', 'POST', formData);
-                showAlert(alerts.reset, 'Password reset successfully!', 'success');
-                
-                // Redirect to login after a delay
-                setTimeout(() => {
-                    showSection('login');
-                }, 2000);
-            } catch (error) {
-                showAlert(alerts.reset, error.message, 'error');
-            }
-        });
+       forms.resetPassword.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const formData = {
+    userId: localStorage.getItem('resetUserId'), // Make sure this is set
+    otp: document.getElementById('reset-otp').value,
+    newPassword: document.getElementById('new-password').value
+  };
+  
+  try {
+    const response = await makeApiRequest('/auth/reset-password', 'POST', formData);
+    showAlert(alerts.reset, 'Password reset successfully!', 'success');
+    
+    // Clear the stored userId
+    localStorage.removeItem('resetUserId');
+    
+    // Redirect to login after a delay
+    setTimeout(() => {
+      showSection('login');
+    }, 2000);
+  } catch (error) {
+    showAlert(alerts.reset, error.message, 'error');
+  }
+});
         
         forms.changePassword.addEventListener('submit', async (e) => {
             e.preventDefault();

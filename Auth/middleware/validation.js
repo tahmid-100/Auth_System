@@ -58,6 +58,8 @@ const validateChangePassword = (req, res, next) => {
 
 const validateResetPassword = (req, res, next) => {
   const schema = Joi.object({
+    userId: Joi.string().required(),
+    otp: Joi.string().required(),
     newPassword: Joi.string()
       .min(12)
       .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])'))
